@@ -1,0 +1,296 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ------------------------------------------------------------------------------------------------
+ * Design tokens – light theme is the base, dark overrides it. Components only use these roles.
+ * --------------------------------------------------------------------------------------------- */
+:root {
+  color-scheme: light;
+  --bg: #f6f7f9;
+  --surface-1: #ffffff;
+  --surface-2: #f1f3f6;
+  --surface-3: #e7eaef;
+  --overlay: rgb(10 11 15 / 0.35);
+  --line: rgb(10 11 15 / 0.08);
+  --line-strong: rgb(10 11 15 / 0.15);
+  --fg: #0d0f14;
+  --fg-2: #4a5060;
+  --muted: #646a79;
+  --accent: #c5f04a;
+  --accent-hover: #b6e536;
+  --accent-ink: #0a0b0f;
+  --accent-text: #3f6212;
+  --accent-soft: rgb(132 204 22 / 0.14);
+  --mark: #65a30d;
+  --danger: #dc2626;
+  --danger-text: #b91c1c;
+  --danger-soft: rgb(220 38 38 / 0.1);
+  --warn: #b45309;
+  --warn-soft: rgb(250 178 25 / 0.16);
+  --ok: #15803d;
+  --ok-soft: rgb(21 128 61 / 0.1);
+  --t-note: #2a55b8;
+  --t-matter: #0f766e;
+  --t-login: #5b3fc4;
+  --t-wifi: #0369a1;
+  --t-card: #8a5a12;
+  --t-secret: #be123c;
+  --shadow: 0 1px 2px rgb(10 11 15 / 0.04), 0 8px 24px rgb(10 11 15 / 0.06);
+  --shadow-lg: 0 24px 64px rgb(10 11 15 / 0.18);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0a0b0f;
+  --surface-1: #111318;
+  --surface-2: #171a21;
+  --surface-3: #1e222b;
+  --overlay: rgb(5 6 8 / 0.6);
+  --line: rgb(255 255 255 / 0.07);
+  --line-strong: rgb(255 255 255 / 0.13);
+  --fg: #eceef3;
+  --fg-2: #a3a9b7;
+  --muted: #7d8494;
+  --accent: #c5f04a;
+  --accent-hover: #d4f76d;
+  --accent-ink: #0a0b0f;
+  --accent-text: #c5f04a;
+  --accent-soft: rgb(197 240 74 / 0.12);
+  --mark: #a6d93a;
+  --danger: #f87171;
+  --danger-text: #fb8f8f;
+  --danger-soft: rgb(248 113 113 / 0.12);
+  --warn: #fab219;
+  --warn-soft: rgb(250 178 25 / 0.14);
+  --ok: #a6d93a;
+  --ok-soft: rgb(166 217 58 / 0.14);
+  --t-note: #7aa2ff;
+  --t-matter: #2dd4bf;
+  --t-login: #a78bfa;
+  --t-wifi: #38bdf8;
+  --t-card: #fbbf24;
+  --t-secret: #fb7185;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 24px 64px rgb(0 0 0 / 0.55);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-fg: var(--fg);
+  --color-fg-2: var(--fg-2);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-text: var(--accent-text);
+  --color-accent-soft: var(--accent-soft);
+  --color-mark: var(--mark);
+  --color-danger: var(--danger);
+  --color-danger-text: var(--danger-text);
+  --color-danger-soft: var(--danger-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, "SF Mono", monospace;
+  --shadow-card: var(--shadow);
+  --shadow-pop: var(--shadow-lg);
+}
+
+@theme {
+  --animate-fade-in: fade-in 160ms ease-out;
+  --animate-fade-out: fade-out 120ms ease-in;
+  --animate-sheet-in: sheet-in 260ms cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-sheet-out: sheet-out 180ms ease-in;
+  --animate-pop-in: pop-in 180ms cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-pop-out: pop-out 120ms ease-in;
+  --animate-drawer-in: drawer-in 240ms cubic-bezier(0.32, 0.72, 0, 1);
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes sheet-in {
+    from {
+      transform: translateX(100%);
+    }
+  }
+  @keyframes sheet-out {
+    to {
+      transform: translateX(100%);
+    }
+  }
+  @keyframes drawer-in {
+    from {
+      transform: translateX(-100%);
+    }
+  }
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px) scale(0.98);
+    }
+  }
+  @keyframes pop-out {
+    to {
+      opacity: 0;
+      transform: scale(0.98);
+    }
+  }
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "ss01", "cv11";
+  }
+  ::selection {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--muted);
+  }
+  button {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+}
+
+@layer components {
+  .masked {
+    -webkit-text-security: disc;
+  }
+  .prose-tresor {
+    color: var(--fg-2);
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+  }
+  .prose-tresor > * + * {
+    margin-top: 0.75em;
+  }
+  .prose-tresor h1,
+  .prose-tresor h2,
+  .prose-tresor h3 {
+    color: var(--fg);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .prose-tresor h1 {
+    font-size: 1.35em;
+  }
+  .prose-tresor h2 {
+    font-size: 1.2em;
+  }
+  .prose-tresor h3 {
+    font-size: 1.05em;
+  }
+  .prose-tresor a {
+    color: var(--accent-text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .prose-tresor ul {
+    list-style: disc;
+    padding-left: 1.25em;
+  }
+  .prose-tresor ol {
+    list-style: decimal;
+    padding-left: 1.25em;
+  }
+  .prose-tresor li + li {
+    margin-top: 0.25em;
+  }
+  .prose-tresor code {
+    font-family: var(--font-mono);
+    font-size: 0.86em;
+    padding: 0.15em 0.4em;
+    border-radius: 6px;
+    background: var(--surface-3);
+    color: var(--fg);
+  }
+  .prose-tresor pre {
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    overflow-x: auto;
+  }
+  .prose-tresor pre code {
+    padding: 0;
+    background: none;
+  }
+  .prose-tresor blockquote {
+    border-left: 2px solid var(--line-strong);
+    padding-left: 12px;
+    color: var(--muted);
+  }
+  .prose-tresor table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95em;
+  }
+  .prose-tresor th,
+  .prose-tresor td {
+    border: 1px solid var(--line);
+    padding: 6px 10px;
+    text-align: left;
+  }
+  .prose-tresor input[type="checkbox"] {
+    margin-right: 6px;
+    accent-color: var(--mark);
+  }
+}
+
+/* Printing (labels & Wi-Fi card) */
+@media print {
+  @page {
+    margin: 12mm;
+  }
+  html,
+  body {
+    background: #fff;
+    color: #000;
+  }
+  [data-sonner-toaster] {
+    /* biome-ignore lint/complexity/noImportantStyles: the toaster injects its own styles at runtime */
+    display: none !important;
+  }
+  .print-label {
+    break-inside: avoid;
+  }
+}

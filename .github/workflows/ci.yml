@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Lint, typecheck, test, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx biome ci .
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+  docker:
+    name: Docker image
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: tresor:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Smoke test (container + PostgreSQL)
+        run: |
+          docker network create tresor-ci
+          docker run -d --name db --network tresor-ci -e POSTGRES_USER=tresor -e POSTGRES_PASSWORD=ci -e POSTGRES_DB=tresor postgres:18-alpine
+          for i in $(seq 1 30); do docker exec db pg_isready -U tresor -d tresor && break; sleep 1; done
+          docker run -d --name app --network tresor-ci -p 8080:8080 \
+            -e DATABASE_URL=postgres://tresor:ci@db:5432/tresor \
+            -e VAULT_MASTER_KEY=ci-master-key-0123456789abcdefghijklmnopqrstuvwxyz \
+            tresor:ci
+          for i in $(seq 1 30); do curl -fsS http://localhost:8080/api/health && break; sleep 1; done
+          curl -fsS http://localhost:8080/api/setup/status | grep -q '"needsSetup":true'
+          curl -fsS http://localhost:8080/ | grep -q '<div id="root">'
+      - name: Container logs
+        if: always()
+        run: docker logs app || true

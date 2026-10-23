@@ -1,0 +1,31 @@
+{
+  "name": "tresor",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Self-hosted, encrypted vault for notes, Matter codes, credentials and other secrets.",
+  "license": "MIT",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=24.7"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n server,web -c green,cyan \"npm run dev -w @tresor/server\" \"npm run dev -w @tresor/web\"",
+    "build": "npm run build -w @tresor/web && npm run build -w @tresor/server",
+    "start": "npm run start -w @tresor/server",
+    "demo": "tsx scripts/demo.ts",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test -w @tresor/server",
+    "check": "biome check .",
+    "format": "biome check --write .",
+    "db:generate": "npm run db:generate -w @tresor/server"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.15",
+    "concurrently": "^10.0.5",
+    "typescript": "^7.0.2"
+  }
+}
