@@ -1,11 +1,5 @@
 # Design
 
-## Design draft
-
-The interactive design draft (dashboard, entries with the Matter detail panel, login with two-factor step,
-admin dashboard, mobile view in the light theme) is available on the design canvas:
-<https://claude.ai/artifact/DKtHC453wrSC9RrqmKRf3X> (private by default – share it from the canvas if needed).
-
 ## Principles
 
 - **Calm, dark-first, one accent.** Near-black graphite surfaces, hairline borders and a single electric-lime

@@ -6,7 +6,7 @@
 
 **Self-hosted, encrypted vault for notes, Matter codes, logins and other secrets.**
 
-[Deutsch](README.de.md) · [Docs](docs/) · [Changelog](CHANGELOG.md) · [Security](.github/SECURITY.md)
+[Docs](docs/) · [Changelog](CHANGELOG.md) · [Security](.github/SECURITY.md)
 
 [![CI](https://github.com/leifistlive/tresor/actions/workflows/ci.yml/badge.svg)](https://github.com/leifistlive/tresor/actions/workflows/ci.yml)
 ![Version](https://img.shields.io/badge/version-1.1.0-c5f04a?style=flat-square)
@@ -38,9 +38,6 @@ password or keys. Administrators cannot read other users' entries, and a stolen 
 | **Notifications** | ntfy, Gotify or webhook: new sign-ins, failed attempts, emergency requests, expiry reminders |
 | **Export / import** | JSON, Markdown (ZIP) or passphrase-encrypted `.tresor` backup – attachments included; nightly DB dumps with optional off-site copy via rclone |
 | **UI** | Dark/light/system theme, German & English, command palette (⌘K), templates, responsive down to phones |
-
-The design draft lives on a [design canvas](docs/design.md) (dashboard, entries with Matter detail, login with
-2FA, admin dashboard, mobile).
 
 ## Quick start
 
@@ -77,7 +74,7 @@ For HTTPS, reverse proxies, Unraid and updates see [docs/installation.md](docs/i
 | [Architecture](docs/architecture.md) | Stack, monorepo layout, data model, request flow |
 | [API](docs/api.md) | REST endpoints |
 | [Development](docs/development.md) | Local setup, tests, conventions, release process |
-| [Design](docs/design.md) | Design draft, tokens, typography, components |
+| [Design](docs/design.md) | Principles, tokens, typography, charts |
 
 ## Tech stack
 

@@ -18,6 +18,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Removed
 
+- The German README; the documentation is in English (the app itself stays German and English).
 - `TRESOR_PULL_POLICY` and the local build in `docker-compose.yml`; for a self-built image set `TRESOR_IMAGE`
   (see `docs/development.md`).
 
