@@ -284,7 +284,7 @@ const enFeatures: Shape<typeof deFeatures> = {
     title: 'Tresor needs HTTPS',
     text: 'Tresor encrypts and decrypts everything right in your browser. Browsers only allow this over HTTPS (or on localhost), so Tresor cannot start over this unencrypted connection.',
     optionProfile:
-      'Use the bundled HTTPS: set TRESOR_HOSTNAME={{host}} in .env, run “docker compose --profile https up -d” and open https://{{host}}:8443.',
+      'Use the bundled HTTPS: set TRESOR_HOSTNAME={{host}} and COMPOSE_PROFILES=https in .env, run “docker compose up -d” and open https://{{host}}:8443.',
     optionProxy:
       'Or put your existing reverse proxy (Caddy, Traefik, Nginx Proxy Manager) with TLS in front of it.',
     optionLocal: 'On the server itself, http://localhost:8080 works as well.',

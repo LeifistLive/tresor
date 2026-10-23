@@ -45,7 +45,7 @@ git clone https://github.com/leifistlive/tresor.git && cd tresor
 cp .env.example .env
 openssl rand -hex 32                   # zweimal ausführen: je ein Wert für POSTGRES_PASSWORD und VAULT_MASTER_KEY
 nano .env                              # die beiden Geheimnisse, TRESOR_HOSTNAME und TRUST_PROXY=true eintragen
-docker compose --profile https up -d   # baut das Image, startet Tresor + PostgreSQL + lokales HTTPS
+docker compose up -d                   # baut das Image, startet Tresor + PostgreSQL + lokales HTTPS
 ```
 
 `TRESOR_HOSTNAME` ist die IP-Adresse oder der Name, unter dem deine Geräte den Server erreichen, z. B. `192.168.178.20`.
@@ -66,7 +66,7 @@ HTTPS, Reverse-Proxy, Unraid und Updates: siehe [docs/installation.md](docs/inst
 - **Passwort und Wiederherstellungsschlüssel verloren?** Dann kann niemand die Einträge entschlüsseln. Ein Admin
   kann das Konto nur zurücksetzen (Einträge werden dabei gelöscht).
 - **Admins** sehen Benutzer, Anzahl der Einträge, Anmeldungen und das Audit-Log – aber nie Inhalte.
-- **Backups:** `docker compose --profile backup up -d` legt nächtliche Datenbank-Dumps an, mit `--profile offsite`
+- **Backups:** `backup` in `COMPOSE_PROFILES` (in der `.env`) legt nächtliche Datenbank-Dumps an, mit `offsite`
   zusätzlich verschlüsselt per rclone außer Haus. Zum Wiederherstellen wird derselbe `VAULT_MASTER_KEY` benötigt –
   bei Verdacht auf Leck lässt er sich mit `node dist/cli.js rotate-master-key` austauschen.
   Details: [docs/backup-restore.md](docs/backup-restore.md).

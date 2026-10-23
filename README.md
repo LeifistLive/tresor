@@ -51,7 +51,7 @@ git clone https://github.com/leifistlive/tresor.git && cd tresor
 cp .env.example .env
 openssl rand -hex 32                   # run twice: one value each for POSTGRES_PASSWORD and VAULT_MASTER_KEY
 nano .env                              # fill in the two secrets, TRESOR_HOSTNAME and TRUST_PROXY=true
-docker compose --profile https up -d   # builds the image, starts Tresor + PostgreSQL + local HTTPS
+docker compose up -d                   # builds the image, starts Tresor + PostgreSQL + local HTTPS
 ```
 
 `TRESOR_HOSTNAME` is the IP address or host name your devices use for the server, e.g. `192.168.178.20`.

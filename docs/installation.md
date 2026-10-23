@@ -29,10 +29,13 @@ Open `.env` in an editor (e.g. `nano .env`) and fill in:
 | `TRESOR_HOSTNAME` | IP or host name your devices use for the server, e.g. `192.168.178.20` (remove the `#`) |
 | `TRUST_PROXY` | `true` |
 
+`COMPOSE_PROFILES=https` is already set and starts the bundled HTTPS (Caddy). With your own reverse proxy, leave it
+empty – see [HTTPS](#https).
+
 Then start Tresor:
 
 ```bash
-docker compose --profile https up -d
+docker compose up -d
 docker compose logs -f app      # wait for "Tresor … is ready"
 ```
 
@@ -61,6 +64,7 @@ from another device, Tresor shows a page explaining this instead of starting.
 ### Bundled: `https` profile (Caddy with a local CA)
 
 ```dotenv
+COMPOSE_PROFILES=https           # starts the bundled Caddy (preset in .env.example)
 TRESOR_HOSTNAME=192.168.178.20   # IP or host name the browsers use
 TRESOR_HTTPS_PORT=8443           # optional
 TRUST_PROXY=true                 # real client IPs + Secure cookies
@@ -68,7 +72,7 @@ TRESOR_BIND=127.0.0.1            # optional: hide the plain HTTP port from the n
 ```
 
 ```bash
-docker compose --profile https up -d
+docker compose up -d
 ```
 
 Caddy ([`deploy/Caddyfile`](../deploy/Caddyfile)) issues a certificate from its own local certificate authority,
@@ -90,6 +94,7 @@ name from your router (`tresor.fritz.box`, `tresor.home`) or Tailscale MagicDNS.
 Tresor speaks plain HTTP on port 8080; terminate TLS in front of it and set
 
 ```dotenv
+COMPOSE_PROFILES=         # no bundled Caddy (add backup/offsite here if you use them)
 TRUST_PROXY=true          # or the proxy's IP / CIDR, e.g. 172.18.0.0/16
 COOKIE_SECURE=auto        # cookies become Secure automatically for HTTPS requests
 ENABLE_HSTS=true          # once everything works via HTTPS

@@ -34,6 +34,7 @@ Tresor is configured with environment variables. With Docker Compose put them in
 | Variable | Default | Description |
 |---|---|---|
 | `POSTGRES_PASSWORD` | – (required) | Password of the internal database user. |
+| `COMPOSE_PROFILES` | `https` (in `.env.example`) | Optional services, comma-separated: `https` (bundled Caddy), `backup` (nightly dumps), `offsite` (rclone copies, with `backup`). Read by Docker Compose itself. |
 | `TRESOR_PORT` | `8080` | Published host port. |
 | `TRESOR_BIND` | `0.0.0.0` | Host address the port is bound to (`127.0.0.1` behind a local proxy). |
 | `TRESOR_HOSTNAME` | – | `https` profile: IP or host name the browsers use (host name needed for passkeys). |

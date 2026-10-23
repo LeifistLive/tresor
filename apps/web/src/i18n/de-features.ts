@@ -285,7 +285,7 @@ const deFeatures = {
     title: 'Tresor braucht HTTPS',
     text: 'Tresor ver- und entschlüsselt alles direkt in deinem Browser. Browser erlauben das nur über HTTPS (oder auf localhost) – über diese unverschlüsselte Verbindung kann Tresor deshalb nicht starten.',
     optionProfile:
-      'Mitgeliefertes HTTPS nutzen: TRESOR_HOSTNAME={{host}} in die .env eintragen, „docker compose --profile https up -d“ ausführen und https://{{host}}:8443 öffnen.',
+      'Mitgeliefertes HTTPS nutzen: TRESOR_HOSTNAME={{host}} und COMPOSE_PROFILES=https in die .env eintragen, „docker compose up -d“ ausführen und https://{{host}}:8443 öffnen.',
     optionProxy:
       'Oder deinen vorhandenen Reverse-Proxy (Caddy, Traefik, Nginx Proxy Manager) mit TLS davorschalten.',
     optionLocal: 'Auf dem Server selbst funktioniert auch http://localhost:8080.',

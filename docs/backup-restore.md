@@ -11,10 +11,11 @@ There are two complementary ways to back up Tresor.
 
 ## 1. Database dumps
 
-Enable the bundled backup service once:
+Enable the bundled backup service: add `backup` to `COMPOSE_PROFILES` in `.env` (e.g. `COMPOSE_PROFILES=https,backup`)
+and run
 
 ```bash
-docker compose --profile backup up -d
+docker compose up -d
 ```
 
 It writes `tresor-YYYY-MM-DD_HHMMSS.dump` (PostgreSQL custom format) into `./backups` every
@@ -37,10 +38,11 @@ mkdir -p rclone
 docker run --rm -it -v "$PWD/rclone:/config/rclone" rclone/rclone:1 config
 ```
 
-Then set the target in `.env` (remove the `#`), e.g. `RCLONE_REMOTE=b2crypt:tresor`, and start the profiles:
+Then set the target in `.env` (remove the `#`), e.g. `RCLONE_REMOTE=b2crypt:tresor`, add `offsite` to the profiles
+(e.g. `COMPOSE_PROFILES=https,backup,offsite`) and run
 
 ```bash
-docker compose --profile backup --profile offsite up -d
+docker compose up -d
 ```
 
 **Always back up `.env` (or at least `VAULT_MASTER_KEY`) together with the dumps – but store it separately**

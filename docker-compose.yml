@@ -3,11 +3,11 @@
 #   2. docker compose up -d                 (builds the image locally on first start)
 #   3. open the app and create the admin account
 #
-# Tresor encrypts in the browser, which needs HTTPS (or localhost). Either put it behind your reverse proxy
-# or use the bundled one:            docker compose --profile https up -d   →  https://<TRESOR_HOSTNAME>:8443
-#
-# Optional nightly database dumps:  docker compose --profile backup up -d
-# Plus off-site copies via rclone:   docker compose --profile backup --profile offsite up -d
+# Optional services are switched on with COMPOSE_PROFILES in .env (comma-separated):
+#   https     bundled HTTPS via Caddy → https://<TRESOR_HOSTNAME>:8443 (Tresor encrypts in the browser, which
+#             needs HTTPS or localhost) – remove it when Tresor runs behind your own reverse proxy
+#   backup    nightly database dumps
+#   offsite   copies of the dumps via rclone (together with backup)
 
 name: tresor
 
@@ -111,7 +111,7 @@ services:
       - backend
 
   # HTTPS in front of the app with certificates from Caddy's local CA (see deploy/Caddyfile).
-  #   docker compose --profile https up -d   – set TRESOR_HOSTNAME (IP or name of the server) in .env
+  #   profile `https` – set TRESOR_HOSTNAME (IP or name of the server) in .env
   https:
     image: caddy:2-alpine
     profiles: ["https"]
@@ -136,7 +136,7 @@ services:
 
   # Copies the dumps to any rclone remote (S3, Backblaze B2, NAS via SFTP/SMB, WebDAV …).
   # Use an rclone "crypt" remote so the files are encrypted before they leave the house.
-  #   docker compose --profile backup --profile offsite up -d
+  #   profiles `backup` + `offsite`, e.g. COMPOSE_PROFILES=https,backup,offsite
   offsite:
     image: rclone/rclone:1
     profiles: ["offsite"]
