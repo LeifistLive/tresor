@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-23
+
 ### Changed
 
 - Deployment without cloning or building: `docker-compose.yml` runs the published image

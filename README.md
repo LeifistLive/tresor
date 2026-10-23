@@ -9,7 +9,7 @@
 [Deutsch](README.de.md) · [Docs](docs/) · [Changelog](CHANGELOG.md) · [Security](.github/SECURITY.md)
 
 [![CI](https://github.com/leifistlive/tresor/actions/workflows/ci.yml/badge.svg)](https://github.com/leifistlive/tresor/actions/workflows/ci.yml)
-![Version](https://img.shields.io/badge/version-1.0.1-c5f04a?style=flat-square)
+![Version](https://img.shields.io/badge/version-1.1.0-c5f04a?style=flat-square)
 ![Zero knowledge](https://img.shields.io/badge/encryption-zero--knowledge-c5f04a?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
 ![Node](https://img.shields.io/badge/node-%E2%89%A5%2024.7-339933?style=flat-square)
