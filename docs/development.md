@@ -74,10 +74,21 @@ vault keys).
 
 ## Releasing
 
-1. Make sure `CHANGELOG.md` lists the changes under **Unreleased**.
-2. Run `./scripts/release.sh 1.1.0` – bumps versions in all `package.json` files, adds the dated changelog
-   heading, commits `chore(release): v1.1.0` and tags `v1.1.0`.
-3. `git push --follow-tags` – the *Release* workflow builds `linux/amd64` + `linux/arm64` images, pushes
+Example for version 1.1.0, starting from a clean working tree:
+
+1. In `CHANGELOG.md`, add the heading `## [1.1.0] - YYYY-MM-DD` directly below `## [Unreleased]`, so the
+   collected changes move into the new version.
+2. Bump the version in all `package.json` files and the lockfile:
+   ```bash
+   npm version 1.1.0 --workspaces --include-workspace-root --no-git-tag-version
+   npm install --package-lock-only
+   ```
+3. Commit and tag:
+   ```bash
+   git commit -am "chore(release): v1.1.0"
+   git tag -a v1.1.0 -m "Tresor v1.1.0"
+   ```
+4. `git push --follow-tags` – the *Release* workflow builds `linux/amd64` + `linux/arm64` images, pushes
    `ghcr.io/leifistlive/tresor:{1.1.0,1.1,1,latest}` and creates the GitHub release from the changelog section.
 
 Versioning follows SemVer: breaking changes to configuration, data format or API → major; features → minor;

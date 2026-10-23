@@ -11,12 +11,16 @@
 ```bash
 git clone https://github.com/leifistlive/tresor.git
 cd tresor
-./scripts/generate-secrets.sh
+[ -f .env ] || cp .env.example .env
+sed -i.bak -e "s|^POSTGRES_PASSWORD=\$|POSTGRES_PASSWORD=$(openssl rand -hex 24)|" -e "s|^VAULT_MASTER_KEY=\$|VAULT_MASTER_KEY=$(openssl rand -hex 32)|" .env && rm .env.bak && chmod 600 .env
 echo "TRESOR_HOSTNAME=192.168.178.20" >> .env   # IP or host name your devices use for the server
 echo "TRUST_PROXY=true" >> .env
 docker compose --profile https up -d
 docker compose logs -f app      # wait for "Tresor … is ready"
 ```
+
+The `sed` line fills in a random database password and master key; it only touches empty values, so running it
+again never replaces existing secrets.
 
 Open `https://<TRESOR_HOSTNAME>:8443`. The first visit shows the **setup wizard** that creates the administrator.
 Afterwards the administrator adds further users under **Admin → Create user**.
@@ -146,7 +150,7 @@ and make a database dump first (see [backup-restore.md](backup-restore.md)).
 
 | Symptom | Cause / fix |
 |---|---|
-| `Invalid configuration: VAULT_MASTER_KEY …` | `.env` missing or key shorter than 32 characters – run `./scripts/generate-secrets.sh`. |
+| `Invalid configuration: VAULT_MASTER_KEY …` | `.env` missing or key shorter than 32 characters – create it as described under [Install](#install). |
 | `VAULT_MASTER_KEY does not match the key this database was created with` | The key in `.env` changed. Restore the original key. |
 | Login works but you are immediately signed out | Served via HTTPS → HTTP mix-up or a proxy without `X-Forwarded-Proto`: set `TRUST_PROXY=true`, or `COOKIE_SECURE=false` for pure HTTP access. |
 | `Too many attempts` | Per-IP rate limit (`LOGIN_RATE_LIMIT` per 5 min). Behind a proxy make sure `TRUST_PROXY` is set, otherwise all users share the proxy IP. |

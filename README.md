@@ -48,7 +48,8 @@ Requirements: Docker with the Compose plugin (Linux, Unraid, Synology, Raspberry
 
 ```bash
 git clone https://github.com/leifistlive/tresor.git && cd tresor
-./scripts/generate-secrets.sh      # creates .env with random secrets
+cp .env.example .env               # then fill in random secrets:
+sed -i.bak -e "s|^POSTGRES_PASSWORD=\$|POSTGRES_PASSWORD=$(openssl rand -hex 24)|" -e "s|^VAULT_MASTER_KEY=\$|VAULT_MASTER_KEY=$(openssl rand -hex 32)|" .env && rm .env.bak && chmod 600 .env
 echo "TRESOR_HOSTNAME=192.168.178.20" >> .env && echo "TRUST_PROXY=true" >> .env   # your server's IP or name
 docker compose --profile https up -d   # builds the image, starts Tresor + PostgreSQL + local HTTPS
 ```
@@ -90,7 +91,7 @@ docs/           Documentation
 ## Versioning
 
 Tresor follows [Semantic Versioning](https://semver.org). Changes are recorded in [CHANGELOG.md](CHANGELOG.md);
-`./scripts/release.sh <version>` bumps all packages, dates the changelog and tags the release. Pushing a
+the release steps are described in [docs/development.md](docs/development.md#releasing). Pushing a
 `v*.*.*` tag builds a multi-arch image (`linux/amd64`, `linux/arm64`) and publishes it to
 `ghcr.io/leifistlive/tresor`.
 
