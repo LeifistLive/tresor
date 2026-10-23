@@ -48,11 +48,13 @@ Requirements: Docker with the Compose plugin (Linux, Unraid, Synology, Raspberry
 
 ```bash
 git clone https://github.com/leifistlive/tresor.git && cd tresor
-cp .env.example .env               # then fill in random secrets:
-sed -i.bak -e "s|^POSTGRES_PASSWORD=\$|POSTGRES_PASSWORD=$(openssl rand -hex 24)|" -e "s|^VAULT_MASTER_KEY=\$|VAULT_MASTER_KEY=$(openssl rand -hex 32)|" .env && rm .env.bak && chmod 600 .env
-echo "TRESOR_HOSTNAME=192.168.178.20" >> .env && echo "TRUST_PROXY=true" >> .env   # your server's IP or name
+cp .env.example .env
+openssl rand -hex 32                   # run twice: one value each for POSTGRES_PASSWORD and VAULT_MASTER_KEY
+nano .env                              # fill in the two secrets, TRESOR_HOSTNAME and TRUST_PROXY=true
 docker compose --profile https up -d   # builds the image, starts Tresor + PostgreSQL + local HTTPS
 ```
+
+`TRESOR_HOSTNAME` is the IP address or host name your devices use for the server, e.g. `192.168.178.20`.
 
 Open `https://<TRESOR_HOSTNAME>:8443`, create the administrator account and **store the recovery key** that is
 shown once. Back up `VAULT_MASTER_KEY` from `.env` in a safe place. Browsers only allow the in-browser encryption

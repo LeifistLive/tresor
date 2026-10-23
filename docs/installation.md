@@ -11,16 +11,30 @@
 ```bash
 git clone https://github.com/leifistlive/tresor.git
 cd tresor
-[ -f .env ] || cp .env.example .env
-sed -i.bak -e "s|^POSTGRES_PASSWORD=\$|POSTGRES_PASSWORD=$(openssl rand -hex 24)|" -e "s|^VAULT_MASTER_KEY=\$|VAULT_MASTER_KEY=$(openssl rand -hex 32)|" .env && rm .env.bak && chmod 600 .env
-echo "TRESOR_HOSTNAME=192.168.178.20" >> .env   # IP or host name your devices use for the server
-echo "TRUST_PROXY=true" >> .env
+cp .env.example .env
+```
+
+Create two random values – run the command twice:
+
+```bash
+openssl rand -hex 32
+```
+
+Open `.env` in an editor (e.g. `nano .env`) and fill in:
+
+| Setting | Value |
+|---|---|
+| `POSTGRES_PASSWORD` | the first random value |
+| `VAULT_MASTER_KEY` | the second random value – **keep a copy in a safe place** |
+| `TRESOR_HOSTNAME` | IP or host name your devices use for the server, e.g. `192.168.178.20` (remove the `#`) |
+| `TRUST_PROXY` | `true` |
+
+Then start Tresor:
+
+```bash
 docker compose --profile https up -d
 docker compose logs -f app      # wait for "Tresor … is ready"
 ```
-
-The `sed` line fills in a random database password and master key; it only touches empty values, so running it
-again never replaces existing secrets.
 
 Open `https://<TRESOR_HOSTNAME>:8443`. The first visit shows the **setup wizard** that creates the administrator.
 Afterwards the administrator adds further users under **Admin → Create user**.

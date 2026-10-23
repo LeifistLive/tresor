@@ -1,5 +1,5 @@
 # Tresor – production stack
-#   1. create .env with random secrets      (commands in README.md / docs/installation.md)
+#   1. cp .env.example .env and fill it in  (secrets: openssl rand -hex 32)
 #   2. docker compose up -d                 (builds the image locally on first start)
 #   3. open the app and create the admin account
 #

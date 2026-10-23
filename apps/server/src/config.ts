@@ -14,7 +14,7 @@ const envSchema = z.object({
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
   VAULT_MASTER_KEY: z
     .string()
-    .min(32, 'VAULT_MASTER_KEY must be at least 32 characters (generate one with: openssl rand -base64 48)'),
+    .min(32, 'VAULT_MASTER_KEY must be at least 32 characters (generate one with: openssl rand -hex 32)'),
   COOKIE_SECURE: z.enum(['auto', 'true', 'false']).default('auto'),
   TRUST_PROXY: z.string().default('false'),
   SESSION_TTL_HOURS: z.coerce

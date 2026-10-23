@@ -35,7 +35,11 @@ they leave your network):
 ```bash
 mkdir -p rclone
 docker run --rm -it -v "$PWD/rclone:/config/rclone" rclone/rclone:1 config
-echo 'RCLONE_REMOTE=b2crypt:tresor' >> .env
+```
+
+Then set the target in `.env` (remove the `#`), e.g. `RCLONE_REMOTE=b2crypt:tresor`, and start the profiles:
+
+```bash
 docker compose --profile backup --profile offsite up -d
 ```
 
