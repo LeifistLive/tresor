@@ -1,108 +1,44 @@
 # Installation & operation
 
-## Requirements
-
-- Docker Engine 24+ with the Compose plugin (`docker compose version`)
-- 1 CPU core and ~300 MB RAM are plenty for a household; `amd64` and `arm64` (Raspberry Pi 4/5) are supported
-- **HTTPS**: the bundled `https` profile or your own reverse proxy – see below
-
 ## Install
 
-The server needs only two files – the application comes as a published image (`linux/amd64`, `linux/arm64`):
+Requirements: Docker with Compose, `amd64` or `arm64`.
 
 ```bash
 mkdir tresor && cd tresor
 curl -LO https://github.com/leifistlive/tresor/releases/latest/download/docker-compose.yml
 curl -L -o .env https://github.com/leifistlive/tresor/releases/latest/download/env.example
-```
-
-Create two random values – run the command twice:
-
-```bash
 openssl rand -hex 32
 ```
 
-Open `.env` in an editor (e.g. `nano .env`) and fill in:
-
-| Setting | Value |
-|---|---|
-| `POSTGRES_PASSWORD` | the first random value |
-| `VAULT_MASTER_KEY` | the second random value – **keep a copy in a safe place** |
-| `TRESOR_HOSTNAME` | IP or host name your devices use for the server, e.g. `192.168.178.20` |
-
-The other three lines are preset for the bundled HTTPS (Caddy). With your own reverse proxy see [HTTPS](#https);
-all further settings are optional ([configuration.md](configuration.md)).
-
-Then start Tresor:
-
-```bash
-docker compose up -d            # pulls ghcr.io/leifistlive/tresor and starts everything
-docker compose logs -f app      # wait for "Tresor … is ready"
-```
-
-Open `https://<TRESOR_HOSTNAME>:8443`. The first visit shows the **setup wizard** that creates the administrator.
-Afterwards the administrator adds further users under **Admin → Create user**.
-
-> **Back up `.env`** – especially `VAULT_MASTER_KEY`. Losing it means losing every entry.
-
-### Choosing the version
-
-By default `docker-compose.yml` runs `ghcr.io/leifistlive/tresor:1`, which follows every 1.x release (see
-[Updating](#updating)). To stay on a fixed version, set it in `.env`:
-
-```dotenv
-TRESOR_IMAGE=ghcr.io/leifistlive/tresor:1.1.1
-```
-
-A self-built image works the same way – see [development.md](development.md#docker-image).
-
-## HTTPS
-
-Tresor encrypts and decrypts **in the browser** (zero knowledge). Browsers only provide the required
-WebCrypto API in a *secure context* – HTTPS, or `http://localhost` on the server itself. Opened via plain HTTP
-from another device, Tresor shows a page explaining this instead of starting.
-
-### Bundled: `https` profile (Caddy with a local CA)
-
-```dotenv
-COMPOSE_PROFILES=https           # starts the bundled Caddy
-TRESOR_HOSTNAME=192.168.178.20   # IP or host name the browsers use
-TRUST_PROXY=true                 # real client IPs + Secure cookies
-TRESOR_BIND=127.0.0.1            # plain HTTP only on the server itself
-TRESOR_HTTPS_PORT=8443           # optional, the default
-```
+Run `openssl` twice and put the values into `.env` as `POSTGRES_PASSWORD` and `VAULT_MASTER_KEY`. Set
+`TRESOR_HOSTNAME` to the IP or host name of the server, then start:
 
 ```bash
 docker compose up -d
 ```
 
-Caddy (configured inside `docker-compose.yml`) issues a certificate from its own local certificate authority,
-without internet access. Browsers warn until you trust that CA once on each device:
+Open `https://<TRESOR_HOSTNAME>:8443` and create the admin account. **Keep a copy of `VAULT_MASTER_KEY`** –
+without it the data cannot be recovered.
+
+## HTTPS
+
+Browsers only allow the in-browser encryption over HTTPS (or on `localhost`). The bundled Caddy
+(`COMPOSE_PROFILES=https`) uses its own certificate authority. Trust it once per device to avoid warnings:
 
 ```bash
 docker compose cp https:/data/caddy/pki/authorities/local/root.crt ./tresor-root.crt
 ```
 
-Import `tresor-root.crt` as a trusted root (macOS: Keychain Access → System → "Always trust"; iOS: open the file,
-install the profile, then *Settings → General → About → Certificate Trust Settings*; Android: *Encryption &
-credentials → Install a certificate → CA certificate*; Windows: "Trusted Root Certification Authorities").
+Import the file as a trusted root certificate (macOS: Keychain Access; iOS: install the profile, then enable it
+under *Settings → General → About → Certificate Trust Settings*; Android: *Install a certificate → CA
+certificate*; Windows: *Trusted Root Certification Authorities*). Passkeys need a host name instead of an IP,
+e.g. `tresor.fritz.box`.
 
-**Passkeys** additionally need a host name instead of an IP address (WebAuthn does not allow IPs), e.g. a local DNS
-name from your router (`tresor.fritz.box`, `tresor.home`) or Tailscale MagicDNS. Use that name as `TRESOR_HOSTNAME`.
+### Own reverse proxy
 
-### Your own reverse proxy
-
-Tresor speaks plain HTTP on port 8080; terminate TLS in front of it and set
-
-```dotenv
-COMPOSE_PROFILES=         # no bundled Caddy (add backup/offsite here if you use them)
-TRUST_PROXY=true          # or the proxy's IP / CIDR, e.g. 172.18.0.0/16
-COOKIE_SECURE=auto        # cookies become Secure automatically for HTTPS requests
-ENABLE_HSTS=true          # once everything works via HTTPS
-TRESOR_BIND=0.0.0.0       # only if the proxy does not run on the same host
-```
-
-**Caddy**
+Set `COMPOSE_PROFILES=` in `.env` and forward the proxy to `http://127.0.0.1:8080` (proxy on another host: also
+set `TRESOR_BIND=0.0.0.0`). The proxy has to send `X-Forwarded-For` and `X-Forwarded-Proto`, e.g. Caddy:
 
 ```caddy
 tresor.example.home {
@@ -110,71 +46,49 @@ tresor.example.home {
 }
 ```
 
-**Nginx / Nginx Proxy Manager** – forward to `http://<host>:8080` and pass the usual headers:
-
-```nginx
-location / {
-    proxy_pass http://127.0.0.1:8080;
-    proxy_set_header Host $host;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-    client_max_body_size 50m;   # imports
-}
-```
-
-**Traefik** (labels on the `app` service):
-
-```yaml
-labels:
-  - traefik.enable=true
-  - traefik.http.routers.tresor.rule=Host(`tresor.example.home`)
-  - traefik.http.routers.tresor.entrypoints=websecure
-  - traefik.http.routers.tresor.tls=true
-  - traefik.http.services.tresor.loadbalancer.server.port=8080
-```
-
-If the browser reaches Tresor under another name than the server sees, set `WEBAUTHN_RP_ID` and
-`WEBAUTHN_ORIGIN` for passkeys.
-
-**Tailscale** is an easy alternative for access from outside: `tailscale serve --https=443 http://127.0.0.1:8080`
-gives Tresor a trusted HTTPS name inside your tailnet.
-
-## Unraid, Portainer & co.
-
-- **Unraid** (Compose Manager plugin or the built-in Compose support): create a stack, paste
-  `docker-compose.yml`, add the variables from `.env.example`, and point the database to your appdata share:
-  `TRESOR_DB_PATH=/mnt/user/appdata/tresor/postgres`, `TRESOR_BACKUP_PATH=/mnt/user/appdata/tresor/backups`.
-- **Portainer**: *Stacks → Add stack*, paste `docker-compose.yml` and set the variables from `.env.example` in the
-  UI.
-- **Synology Container Manager**: *Project → Create*, select the folder with `docker-compose.yml` and `.env`.
-
-## Updating
+## Updates
 
 ```bash
-docker compose pull          # with a pinned TRESOR_IMAGE: change the version in .env first
+docker compose pull
 docker compose up -d
 ```
 
-If the release notes mention changes to `docker-compose.yml`, download it again (`.env` stays as it is).
-Database migrations run automatically at start. Read the [changelog](../CHANGELOG.md) before major upgrades
-and make a database dump first (see [backup-restore.md](backup-restore.md)).
+Database migrations run automatically. If the release notes mention `docker-compose.yml`, download it again.
 
-## Health & monitoring
+## Backups
 
-- `GET /api/health` → `{"status":"ok","version":"…"}` (checks the database); used by the Docker health check
-  and suitable for Uptime Kuma & co.
-- Logs are JSON lines (`docker compose logs app`), level via `LOG_LEVEL`.
-- Admin dashboard → audit log for sign-ins, failed attempts and admin actions.
+Add `backup` to `COMPOSE_PROFILES` (e.g. `https,backup`): a database dump is written to `./backups` every day and
+kept for 14 days. For copies to S3, B2, a NAS … add `offsite`, set `RCLONE_REMOTE` and configure
+[rclone](https://rclone.org) once:
+
+```bash
+docker run --rm -it -v "$PWD/rclone:/config/rclone" rclone/rclone:1 config
+```
+
+Manual dump and restore – the restore needs the same `VAULT_MASTER_KEY`:
+
+```bash
+docker compose exec -T db pg_dump -U tresor -d tresor --format=custom > tresor.dump
+```
+
+```bash
+docker compose stop app
+docker compose exec -T db dropdb -U tresor tresor
+docker compose exec -T db createdb -U tresor tresor
+docker compose exec -T db pg_restore -U tresor -d tresor --no-owner < tresor.dump
+docker compose start app
+```
+
+Users can also export their entries in the app (*Settings → Export & import*) as an encrypted `.tresor` file,
+JSON or Markdown.
 
 ## Troubleshooting
 
-| Symptom | Cause / fix |
+| Problem | Solution |
 |---|---|
-| `Invalid configuration: VAULT_MASTER_KEY …` | `.env` missing or key shorter than 32 characters – create it as described under [Install](#install). |
-| `VAULT_MASTER_KEY does not match the key this database was created with` | The key in `.env` changed. Restore the original key. |
-| Login works but you are immediately signed out | Served via HTTPS → HTTP mix-up or a proxy without `X-Forwarded-Proto`: set `TRUST_PROXY=true`, or `COOKIE_SECURE=false` for pure HTTP access. |
-| `Too many attempts` | Per-IP rate limit (`LOGIN_RATE_LIMIT` per 5 min). Behind a proxy make sure `TRUST_PROXY` is set, otherwise all users share the proxy IP. |
-| Sign-in is slow on an old phone | Argon2id now runs in the browser. Lower `ARGON2_MEMORY_KIB` (not below `19456`) – applies to passwords set afterwards. |
-| "Tresor braucht HTTPS" / "Tresor needs HTTPS" | Opened via plain HTTP from another device – use the `https` profile or a reverse proxy. |
-| `WEAK_KDF` at sign-in | The server asks for Argon2 parameters below the browser's minimum (19 MiB / 2 passes) – raise `ARGON2_*`. |
-| Database volume after upgrading from PostgreSQL ≤ 17 | PostgreSQL 18 images store data below `/var/lib/postgresql/18/docker`. Dump & restore when changing major versions. |
+| "Tresor needs HTTPS" | Open it via `https://…:8443` or your reverse proxy. |
+| Certificate warning | Trust the CA, see [HTTPS](#https). |
+| `Invalid configuration: VAULT_MASTER_KEY …` | Fill in `.env`, the key needs at least 32 characters. |
+| `VAULT_MASTER_KEY does not match …` | The key in `.env` changed – restore the original one. |
+| Signed out right after sign-in | Behind a proxy: set `TRUST_PROXY=true`. |
+| Sign-in slow on an old phone | Lower `ARGON2_MEMORY_KIB` (minimum `19456`). |

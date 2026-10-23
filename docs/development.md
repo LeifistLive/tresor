@@ -1,105 +1,55 @@
 # Development
 
-## Prerequisites
-
-- Node.js **24.7+** (see `.nvmrc`) – Tresor relies on the built-in `crypto.argon2`
-- npm 11 (ships with Node 24)
-- Optional: a PostgreSQL 18 server (otherwise the embedded PGlite is used)
+TypeScript monorepo: `apps/server` (Fastify, Drizzle, PostgreSQL), `apps/web` (React, Vite, Tailwind) and
+`packages/shared` (schemas, API types, browser crypto and the zero-knowledge client used by both).
 
 ## Setup
 
+Requirements: Node.js 24.7+ (see `.nvmrc`).
+
 ```bash
 npm ci
-cp .env.example .env    # set VAULT_MASTER_KEY (≥ 32 chars) and POSTGRES_PASSWORD
+cp .env.example .env                          # fill in VAULT_MASTER_KEY
+DATABASE_URL=pglite:./data/dev npm run dev    # API on :8080, web app on http://localhost:5173
 ```
 
-### Database options
+PGlite is an embedded PostgreSQL; for a real one use `DATABASE_URL=postgres://…`.
 
-**Embedded (no Docker):** PGlite runs Postgres in-process – ideal for quick UI work.
+| Command | |
+|---|---|
+| `npm run dev` | API and web app in watch mode |
+| `npm test` | Crypto unit tests and API tests (PGlite, same client as the web app) |
+| `npm run typecheck` | TypeScript checks |
+| `npm run check` / `npm run format` | Biome lint & format check / fix |
+| `npm run build` | Production build |
+| `npm run db:generate` | SQL migration after changing `apps/server/src/db/schema.ts` |
 
-```bash
-DATABASE_URL=pglite:./data/dev npm run dev
-```
+## Rules
 
-**Real PostgreSQL:** point `DATABASE_URL` at any PostgreSQL 18 database; migrations run on start.
-
-```bash
-DATABASE_URL=postgres://tresor:<password>@localhost:5432/tresor npm run dev
-```
-
-`npm run dev` starts the API on <http://localhost:8080> (tsx watch) and Vite on <http://localhost:5173> with
-a proxy for `/api`. For plain-HTTP development set `COOKIE_SECURE=false` (the default `auto` also works on
-`http://localhost`).
+- The server never receives plain text or keys: content is encrypted in `packages/shared/src/client`.
+- Every UI text exists in German and English (`apps/web/src/i18n`).
+- [Conventional Commits](https://www.conventionalcommits.org/); user-facing changes go into `CHANGELOG.md` under
+  **Unreleased**.
 
 ## Docker image
-
-Build the image from the repository and run it with the normal compose file:
 
 ```bash
 docker build -t tresor:local .
 ```
 
-Then set `TRESOR_IMAGE=tresor:local` in `.env` and start with `docker compose up -d`.
-
-## Scripts
-
-| Command | |
-|---|---|
-| `npm run dev` | API + web app in watch mode |
-| `npm run build` | Production build (`apps/web/dist`, `apps/server/dist`) |
-| `npm start` | Run the built server (serves the built web app) |
-| `npm test` | Vitest: crypto unit tests + API integration tests on PGlite |
-| `npm run typecheck` | `tsc --noEmit` in all workspaces |
-| `npm run check` / `npm run format` | Biome lint & format check / auto-fix |
-| `npm run db:generate` | Create a SQL migration after changing `apps/server/src/db/schema.ts` |
-
-## Conventions
-
-- **Commits:** [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`, `chore:`,
-  `refactor:`, `test:` …).
-- **Branches:** `main` is always releasable; work in `feat/*`, `fix/*` branches and open a pull request. CI must
-  be green (lint, types, tests, build, Docker smoke test).
-- **Code style:** Biome (2 spaces, single quotes, 110 columns). No default exports except where libraries need
-  them (lazy pages, Markdown chunk).
-- **i18n:** add every string in German and English (`apps/web/src/i18n/de.ts` + `en.ts`, or `de-features.ts` +
-  `en-features.ts`); the English files are type-checked against the German ones.
-- **Validation:** request schemas live in `packages/shared` and are used by API and UI.
-- **Security-relevant code** (crypto, auth) needs tests in `apps/server/test`.
-- **Zero knowledge:** the server must never receive plaintext or keys. New features that handle content encrypt in
-  `packages/shared/src/client` (browser) and send ciphertext; the server only stores it and checks access.
-
-## Testing
-
-```bash
-npm test
-```
-
-The API tests start Fastify with an in-memory PGlite database, run the real migrations and drive it with the
-**same zero-knowledge client the web app uses** (`packages/shared/src/client`) over `app.inject`: setup, sign-in,
-2FA with replay protection, recovery, multi-user isolation, admin actions, sharing with key rotation, emergency
-access, passkeys (software authenticator with PRF), export/import and master key rotation.
-They assert that neither the password nor plaintext ever reaches the server or the database, and they contain
-attack scenarios from the security review (account takeover via emergency access, KDF downgrade, SSRF, stale
-vault keys).
+Then set `TRESOR_IMAGE=tresor:local` in `.env` and run `docker compose up -d`.
 
 ## Releasing
 
-Example for version 1.1.0, starting from a clean working tree:
+Example for 1.2.0:
 
-1. In `CHANGELOG.md`, add the heading `## [1.1.0] - YYYY-MM-DD` directly below `## [Unreleased]`, so the
-   collected changes move into the new version.
-2. Bump the version in all `package.json` files and the lockfile:
+1. In `CHANGELOG.md` add `## [1.2.0] - YYYY-MM-DD` below `## [Unreleased]`.
+2. Bump the versions and commit:
    ```bash
-   npm version 1.1.0 --workspaces --include-workspace-root --no-git-tag-version
+   npm version 1.2.0 --workspaces --include-workspace-root --no-git-tag-version
    npm install --package-lock-only
+   git commit -am "chore(release): v1.2.0"
+   git tag -a v1.2.0 -m "Tresor v1.2.0"
    ```
-3. Commit and tag:
-   ```bash
-   git commit -am "chore(release): v1.1.0"
-   git tag -a v1.1.0 -m "Tresor v1.1.0"
-   ```
-4. `git push --follow-tags` – the *Release* workflow builds `linux/amd64` + `linux/arm64` images, pushes
-   `ghcr.io/leifistlive/tresor:{1.1.0,1.1,1,latest}` and creates the GitHub release from the changelog section.
-
-Versioning follows SemVer: breaking changes to configuration, data format or API → major; features → minor;
-fixes → patch.
+3. `git push`, wait for the green CI, then `git push origin v1.2.0`. The release workflow publishes the image
+   (`1.2.0`, `1.2`, `1`, `latest`) and the GitHub release with `docker-compose.yml` and `env.example`.

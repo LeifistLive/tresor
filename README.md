@@ -4,99 +4,49 @@
 
 # Tresor
 
-**Self-hosted, encrypted vault for notes, Matter codes, logins and other secrets.**
-
-[Docs](docs/) · [Changelog](CHANGELOG.md) · [Security](.github/SECURITY.md)
+**Self-hosted, end-to-end encrypted vault for notes, Matter codes, logins and other secrets.**
 
 [![CI](https://github.com/leifistlive/tresor/actions/workflows/ci.yml/badge.svg)](https://github.com/leifistlive/tresor/actions/workflows/ci.yml)
-![Version](https://img.shields.io/badge/version-1.1.1-c5f04a?style=flat-square)
-![Zero knowledge](https://img.shields.io/badge/encryption-zero--knowledge-c5f04a?style=flat-square)
+![Release](https://img.shields.io/github/v/release/leifistlive/tresor?style=flat-square&color=c5f04a)
 ![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
-![Node](https://img.shields.io/badge/node-%E2%89%A5%2024.7-339933?style=flat-square)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-336791?style=flat-square)
 
 </div>
 
-Tresor runs on your home server with Docker Compose. It is **zero-knowledge**: every entry, file and vault name
-is encrypted **in your browser** before it is sent – the server only ever stores ciphertext and never sees your
-password or keys. Administrators cannot read other users' entries, and a stolen database or backup is useless.
+Everything is encrypted **in your browser** before it reaches the server. The server, its administrators and
+anyone with a copy of the database only ever see ciphertext.
 
 ## Features
 
-| | |
-|---|---|
-| **Six entry types** | Notes (Markdown), **Matter devices** (pairing code + QR, decoded vendor/product ID), logins (with live **2FA codes**), Wi-Fi (with "join" QR code), cards & IDs, keys & codes – plus custom fields, tags and expiry dates |
-| **QR scanner** | Scan Matter, Wi-Fi and 2FA QR codes with the camera (or a photo) – fields fill themselves |
-| **Smart home view** | Matter devices by room and network, printable QR labels and a Wi-Fi guest card |
-| **Zero knowledge** | Encrypted in the browser: Argon2id · AES-256-GCM per entry and file · X25519 for sharing · the server never sees passwords, keys or plain text · rotatable server master key on top |
-| **Sign-in** | Password + optional TOTP, **passkeys** (Face ID / Touch ID / security keys, unlock via PRF), recovery key, auto-lock |
-| **Sharing** | Shared vaults (owner / editor / viewer) with their own key, replaced when members leave; key fingerprints to verify members |
-| **Emergency access** | Trusted contacts get read access after a waiting period you can veto |
-| **History & files** | Version history with restore, encrypted attachments (images, PDFs, any file) |
-| **Dashboard** | Activity, distribution by type, expiring entries, **password health** (weak / reused / old), security score |
-| **Admin dashboard** | Users (create, roles, disable, sign out, reset, delete), sign-in statistics, system info, audit log |
-| **Notifications** | ntfy, Gotify or webhook: new sign-ins, failed attempts, emergency requests, expiry reminders |
-| **Export / import** | JSON, Markdown (ZIP) or passphrase-encrypted `.tresor` backup – attachments included; nightly DB dumps with optional off-site copy via rclone |
-| **UI** | Dark/light/system theme, German & English, command palette (⌘K), templates, responsive down to phones |
+- Notes, Matter devices, logins with 2FA codes, Wi-Fi, cards and keys – with tags, custom fields, expiry dates,
+  version history and encrypted attachments
+- QR scanner for Matter, Wi-Fi and 2FA codes; smart home view with printable labels
+- Passkeys, two-factor sign-in, recovery key, auto-lock
+- Shared vaults and emergency access for trusted contacts
+- Dashboard with password health, admin area with audit log, notifications via ntfy, Gotify or webhook
+- Encrypted exports and nightly database backups
+- German and English, dark and light theme
 
 ## Quick start
 
-Requirements: Docker with the Compose plugin (Linux, Unraid, Synology, Raspberry Pi 4/5 …).
+Requirements: Docker with Compose.
 
 ```bash
 mkdir tresor && cd tresor
 curl -LO https://github.com/leifistlive/tresor/releases/latest/download/docker-compose.yml
 curl -L -o .env https://github.com/leifistlive/tresor/releases/latest/download/env.example
-openssl rand -hex 32                   # run twice: one value each for POSTGRES_PASSWORD and VAULT_MASTER_KEY
-nano .env                              # fill in the two secrets and TRESOR_HOSTNAME
-docker compose up -d                   # pulls the image, starts Tresor + PostgreSQL + local HTTPS
+openssl rand -hex 32        # run twice: values for POSTGRES_PASSWORD and VAULT_MASTER_KEY
+nano .env                   # fill in the two secrets and TRESOR_HOSTNAME
+docker compose up -d
 ```
 
-Nothing else is needed on the server – no clone, no build, no scripts.
-
-`TRESOR_HOSTNAME` is the IP address or host name your devices use for the server, e.g. `192.168.178.20`.
-
-Open `https://<TRESOR_HOSTNAME>:8443`, create the administrator account and **store the recovery key** that is
-shown once. Back up `VAULT_MASTER_KEY` from `.env` in a safe place. Browsers only allow the in-browser encryption
-over **HTTPS** (or on `localhost`), so the bundled `https` profile (Caddy with a local CA) or your own reverse
-proxy is required.
-
-For HTTPS, reverse proxies, Unraid and updates see [docs/installation.md](docs/installation.md).
+Open `https://<TRESOR_HOSTNAME>:8443` and create the admin account. Keep a copy of `VAULT_MASTER_KEY` – without
+it the data cannot be recovered.
 
 ## Documentation
 
-| Topic | |
-|---|---|
-| [Installation & operation](docs/installation.md) | Compose, reverse proxy (Caddy/Traefik/NPM), Unraid, updates, troubleshooting |
-| [Configuration](docs/configuration.md) | All environment variables |
-| [Security model](docs/security.md) | Zero-knowledge design, threat model, limits, security review |
-| [Backup & restore](docs/backup-restore.md) | Database dumps, encrypted exports, disaster recovery |
-| [Architecture](docs/architecture.md) | Stack, monorepo layout, data model, request flow |
-| [API](docs/api.md) | REST endpoints |
-| [Development](docs/development.md) | Local setup, tests, conventions, release process |
-| [Design](docs/design.md) | Principles, tokens, typography, charts |
+- [Installation & operation](docs/installation.md) – HTTPS, reverse proxy, updates, backups
+- [Configuration](docs/configuration.md) – all settings
+- [Security](docs/security.md) – how the encryption works and where its limits are
+- [Development](docs/development.md) – local setup, tests, releases
 
-## Tech stack
-
-TypeScript end-to-end in an npm-workspaces monorepo:
-**Fastify 5** · **Drizzle ORM** · **PostgreSQL 18** · **React 19** · **Vite 8** · **Tailwind CSS 4** ·
-WebCrypto + hash-wasm (Argon2id) + @noble/curves (X25519) in the browser · TanStack Query · React Router ·
-Radix UI · i18next · Zod · Vitest · Biome · Docker · GitHub Actions.
-
-```
-apps/server     Fastify API, crypto, migrations (serves the built web app in production)
-apps/web        React single-page app
-packages/shared Types, schemas, browser crypto and the zero-knowledge client used by both
-docs/           Documentation
-```
-
-## Versioning
-
-Tresor follows [Semantic Versioning](https://semver.org). Changes are recorded in [CHANGELOG.md](CHANGELOG.md);
-the release steps are described in [docs/development.md](docs/development.md#releasing). Pushing a
-`v*.*.*` tag builds a multi-arch image (`linux/amd64`, `linux/arm64`) and publishes it to
-`ghcr.io/leifistlive/tresor`.
-
-## License
-
-[MIT](LICENSE)
+[Changelog](CHANGELOG.md) · [MIT License](LICENSE)
