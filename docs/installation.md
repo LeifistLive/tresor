@@ -49,7 +49,7 @@ Afterwards the administrator adds further users under **Admin → Create user**.
 After a release has been published to GitHub Container Registry, set in `.env`:
 
 ```dotenv
-TRESOR_IMAGE=ghcr.io/leifistlive/tresor:1.0.0
+TRESOR_IMAGE=ghcr.io/leifistlive/tresor:1.0.1
 TRESOR_PULL_POLICY=missing
 ```
 

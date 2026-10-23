@@ -6,11 +6,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-10-23
+
 ### Changed
 
 - Optional services (bundled HTTPS, nightly dumps, off-site copies) are chosen with `COMPOSE_PROFILES` in `.env`;
   `.env.example` enables `https` by default, so `docker compose up -d` is the only start command.
 - Setup without helper scripts: copy `.env.example` to `.env` and fill it in, secrets via `openssl rand -hex 32`.
+- The notice shown when Tresor is opened without HTTPS names the new setup (`COMPOSE_PROFILES=https`,
+  `docker compose up -d`).
 
 ## [1.0.0] - 2026-10-23
 
