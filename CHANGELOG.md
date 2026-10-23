@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+### Changed
+
+- Deployment without cloning or building: `docker-compose.yml` runs the published image
+  `ghcr.io/leifistlive/tresor:1` by default, and every release offers `docker-compose.yml` and `env.example` as
+  downloads – a server needs only these two files. Updates: `docker compose pull && docker compose up -d`.
+- The bundled HTTPS is configured inside `docker-compose.yml`; `deploy/Caddyfile` is gone.
+- CI tests this deployment (compose file + `.env` with the `https` profile) on every push.
+
+### Removed
+
+- `TRESOR_PULL_POLICY` and the local build in `docker-compose.yml`; for a self-built image set `TRESOR_IMAGE`
+  (see `docs/development.md`).
+
 ## [1.0.1] - 2026-10-23
 
 ### Changed

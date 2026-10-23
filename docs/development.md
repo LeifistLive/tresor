@@ -31,6 +31,16 @@ DATABASE_URL=postgres://tresor:<password>@localhost:5432/tresor npm run dev
 a proxy for `/api`. For plain-HTTP development set `COOKIE_SECURE=false` (the default `auto` also works on
 `http://localhost`).
 
+## Docker image
+
+Build the image from the repository and run it with the normal compose file:
+
+```bash
+docker build -t tresor:local .
+```
+
+Then set `TRESOR_IMAGE=tresor:local` in `.env` and start with `docker compose up -d`.
+
 ## Scripts
 
 | Command | |

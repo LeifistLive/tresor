@@ -55,6 +55,25 @@ jobs:
           for i in $(seq 1 30); do curl -fsS http://localhost:8080/api/health && break; sleep 1; done
           curl -fsS http://localhost:8080/api/setup/status | grep -q '"needsSetup":true'
           curl -fsS http://localhost:8080/ | grep -q '<div id="root">'
+      # The documented deployment: only docker-compose.yml + .env (from .env.example), bundled HTTPS.
+      - name: Deployment test (compose + HTTPS profile)
+        run: |
+          mkdir /tmp/deploy && cp docker-compose.yml /tmp/deploy/ && cp .env.example /tmp/deploy/.env
+          cd /tmp/deploy
+          sed -i \
+            -e "s|^POSTGRES_PASSWORD=$|POSTGRES_PASSWORD=$(openssl rand -hex 32)|" \
+            -e "s|^VAULT_MASTER_KEY=$|VAULT_MASTER_KEY=$(openssl rand -hex 32)|" \
+            -e "s|^# TRESOR_HOSTNAME=.*|TRESOR_HOSTNAME=localhost|" \
+            -e "s|^TRUST_PROXY=false|TRUST_PROXY=true|" \
+            -e "s|^TRESOR_PORT=8080|TRESOR_PORT=18080|" .env
+          echo "TRESOR_IMAGE=tresor:ci" >> .env
+          docker compose up -d --wait --wait-timeout 120
+          for i in $(seq 1 30); do curl -fsSk https://localhost:8443/api/health && break; sleep 2; done
+          curl -fsSk https://localhost:8443/api/setup/status | grep -q '"needsSetup":true'
+          docker compose cp https:/data/caddy/pki/authorities/local/root.crt ./root.crt
+          curl -fsS --cacert root.crt https://localhost:8443/ | grep -q '<div id="root">'
       - name: Container logs
         if: always()
-        run: docker logs app || true
+        run: |
+          docker logs app || true
+          [ -d /tmp/deploy ] && (cd /tmp/deploy && docker compose ps -a && docker compose logs) || true

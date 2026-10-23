@@ -47,12 +47,15 @@ The design draft lives on a [design canvas](docs/design.md) (dashboard, entries 
 Requirements: Docker with the Compose plugin (Linux, Unraid, Synology, Raspberry Pi 4/5 …).
 
 ```bash
-git clone https://github.com/leifistlive/tresor.git && cd tresor
-cp .env.example .env
+mkdir tresor && cd tresor
+curl -LO https://github.com/leifistlive/tresor/releases/latest/download/docker-compose.yml
+curl -L -o .env https://github.com/leifistlive/tresor/releases/latest/download/env.example
 openssl rand -hex 32                   # run twice: one value each for POSTGRES_PASSWORD and VAULT_MASTER_KEY
 nano .env                              # fill in the two secrets, TRESOR_HOSTNAME and TRUST_PROXY=true
-docker compose up -d                   # builds the image, starts Tresor + PostgreSQL + local HTTPS
+docker compose up -d                   # pulls the image, starts Tresor + PostgreSQL + local HTTPS
 ```
+
+Nothing else is needed on the server – no clone, no build, no scripts.
 
 `TRESOR_HOSTNAME` is the IP address or host name your devices use for the server, e.g. `192.168.178.20`.
 

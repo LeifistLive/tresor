@@ -8,10 +8,12 @@
 
 ## Install
 
+The server needs only two files – the application comes as a published image (`linux/amd64`, `linux/arm64`):
+
 ```bash
-git clone https://github.com/leifistlive/tresor.git
-cd tresor
-cp .env.example .env
+mkdir tresor && cd tresor
+curl -LO https://github.com/leifistlive/tresor/releases/latest/download/docker-compose.yml
+curl -L -o .env https://github.com/leifistlive/tresor/releases/latest/download/env.example
 ```
 
 Create two random values – run the command twice:
@@ -35,7 +37,7 @@ empty – see [HTTPS](#https).
 Then start Tresor:
 
 ```bash
-docker compose up -d
+docker compose up -d            # pulls ghcr.io/leifistlive/tresor and starts everything
 docker compose logs -f app      # wait for "Tresor … is ready"
 ```
 
@@ -44,16 +46,16 @@ Afterwards the administrator adds further users under **Admin → Create user**.
 
 > **Back up `.env`** – especially `VAULT_MASTER_KEY`. Losing it means losing every entry.
 
-### Using a published image instead of building
+### Choosing the version
 
-After a release has been published to GitHub Container Registry, set in `.env`:
+By default `docker-compose.yml` runs `ghcr.io/leifistlive/tresor:1`, which follows every 1.x release (see
+[Updating](#updating)). To stay on a fixed version, set it in `.env`:
 
 ```dotenv
 TRESOR_IMAGE=ghcr.io/leifistlive/tresor:1.0.1
-TRESOR_PULL_POLICY=missing
 ```
 
-and run `docker compose up -d`.
+A self-built image works the same way – see [development.md](development.md#docker-image).
 
 ## HTTPS
 
@@ -75,7 +77,7 @@ TRESOR_BIND=127.0.0.1            # optional: hide the plain HTTP port from the n
 docker compose up -d
 ```
 
-Caddy ([`deploy/Caddyfile`](../deploy/Caddyfile)) issues a certificate from its own local certificate authority,
+Caddy (configured inside `docker-compose.yml`) issues a certificate from its own local certificate authority,
 without internet access. Browsers warn until you trust that CA once on each device:
 
 ```bash
@@ -143,18 +145,18 @@ gives Tresor a trusted HTTPS name inside your tailnet.
 - **Unraid** (Compose Manager plugin or the built-in Compose support): create a stack, paste
   `docker-compose.yml`, add the variables from `.env.example`, and point the database to your appdata share:
   `TRESOR_DB_PATH=/mnt/user/appdata/tresor/postgres`, `TRESOR_BACKUP_PATH=/mnt/user/appdata/tresor/backups`.
-- **Portainer**: *Stacks → Add stack → Repository* (this repository) or paste the compose file; set the
-  environment variables in the UI. When you do not build from the repository, use a published image via
-  `TRESOR_IMAGE`/`TRESOR_PULL_POLICY` (see above).
+- **Portainer**: *Stacks → Add stack*, paste `docker-compose.yml` and set the variables from `.env.example` in the
+  UI.
 - **Synology Container Manager**: *Project → Create*, select the folder with `docker-compose.yml` and `.env`.
 
 ## Updating
 
 ```bash
-git pull                     # or change TRESOR_IMAGE to the new version
-docker compose up -d --build
+docker compose pull          # with a pinned TRESOR_IMAGE: change the version in .env first
+docker compose up -d
 ```
 
+If the release notes mention changes to `docker-compose.yml`, download it again (`.env` stays as it is).
 Database migrations run automatically at start. Read the [changelog](../CHANGELOG.md) before major upgrades
 and make a database dump first (see [backup-restore.md](backup-restore.md)).
 

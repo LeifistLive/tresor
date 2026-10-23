@@ -1,7 +1,8 @@
-# Tresor – production stack
-#   1. cp .env.example .env and fill it in  (secrets: openssl rand -hex 32)
-#   2. docker compose up -d                 (builds the image locally on first start)
+# Tresor – production stack. Only this file and .env are needed on the server.
+#   1. save env.example as .env next to this file and fill it in  (secrets: openssl rand -hex 32)
+#   2. docker compose up -d                 (pulls the published image)
 #   3. open the app and create the admin account
+# Update: docker compose pull && docker compose up -d
 #
 # Optional services are switched on with COMPOSE_PROFILES in .env (comma-separated):
 #   https     bundled HTTPS via Caddy → https://<TRESOR_HOSTNAME>:8443 (Tresor encrypts in the browser, which
@@ -13,14 +14,8 @@ name: tresor
 
 services:
   app:
-    # Default: build the image from this repository. To run a published image instead set
-    # TRESOR_IMAGE=ghcr.io/leifistlive/tresor:<version> and TRESOR_PULL_POLICY=missing in .env.
-    image: ${TRESOR_IMAGE:-tresor:local}
-    build:
-      context: .
-      args:
-        VERSION: ${TRESOR_VERSION:-local}
-    pull_policy: ${TRESOR_PULL_POLICY:-build}
+    # Published image; `1` follows every 1.x release. Pin a version with TRESOR_IMAGE in .env.
+    image: ${TRESOR_IMAGE:-ghcr.io/leifistlive/tresor:1}
     restart: unless-stopped
     init: true
     depends_on:
@@ -110,8 +105,9 @@ services:
     networks:
       - backend
 
-  # HTTPS in front of the app with certificates from Caddy's local CA (see deploy/Caddyfile).
+  # HTTPS in front of the app with certificates from Caddy's own local CA (no internet access needed).
   #   profile `https` – set TRESOR_HOSTNAME (IP or name of the server) in .env
+  #   trust the CA once per device: docker compose cp https:/data/caddy/pki/authorities/local/root.crt ./tresor-root.crt
   https:
     image: caddy:2-alpine
     profiles: ["https"]
@@ -123,14 +119,24 @@ services:
     ports:
       - "${TRESOR_HTTPS_BIND:-0.0.0.0}:${TRESOR_HTTPS_PORT:-8443}:8443"
     volumes:
-      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data
       - caddy-config:/config
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
         [ -n "$${TRESOR_HOSTNAME}" ] || { echo "Set TRESOR_HOSTNAME in .env (IP or host name of this server)"; exit 1; }
-        exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
+        cat > /config/Caddyfile <<'CADDYFILE'
+        {
+          local_certs
+          skip_install_trust
+        }
+
+        {$$TRESOR_HOSTNAME}:8443 {
+          encode zstd gzip
+          reverse_proxy app:8080
+        }
+        CADDYFILE
+        exec caddy run --config /config/Caddyfile --adapter caddyfile
     networks:
       - frontend
 

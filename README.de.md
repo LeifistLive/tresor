@@ -41,12 +41,15 @@ Login mit 2FA, Admin-Dashboard, Mobile).
 Voraussetzung: Docker mit Compose-Plugin (Linux, Unraid, Synology, Raspberry Pi 4/5 …).
 
 ```bash
-git clone https://github.com/leifistlive/tresor.git && cd tresor
-cp .env.example .env
+mkdir tresor && cd tresor
+curl -LO https://github.com/leifistlive/tresor/releases/latest/download/docker-compose.yml
+curl -L -o .env https://github.com/leifistlive/tresor/releases/latest/download/env.example
 openssl rand -hex 32                   # zweimal ausführen: je ein Wert für POSTGRES_PASSWORD und VAULT_MASTER_KEY
 nano .env                              # die beiden Geheimnisse, TRESOR_HOSTNAME und TRUST_PROXY=true eintragen
-docker compose up -d                   # baut das Image, startet Tresor + PostgreSQL + lokales HTTPS
+docker compose up -d                   # lädt das Image, startet Tresor + PostgreSQL + lokales HTTPS
 ```
+
+Mehr braucht der Server nicht – kein Klonen, kein Bauen, keine Skripte.
 
 `TRESOR_HOSTNAME` ist die IP-Adresse oder der Name, unter dem deine Geräte den Server erreichen, z. B. `192.168.178.20`.
 
