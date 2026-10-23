@@ -6,7 +6,7 @@
 
 **Selbst gehosteter, verschlüsselter Tresor für Notizen, Matter-Codes, Zugangsdaten und andere Geheimnisse.**
 
-[English](README.md) · [Dokumentation](docs/) · [Changelog](CHANGELOG.md) · [Sicherheit](SECURITY.md)
+[English](README.md) · [Dokumentation](docs/) · [Changelog](CHANGELOG.md) · [Sicherheit](.github/SECURITY.md)
 
 </div>
 

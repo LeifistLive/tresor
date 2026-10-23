@@ -4,7 +4,7 @@
 
 - Node.js **24.7+** (see `.nvmrc`) – Tresor relies on the built-in `crypto.argon2`
 - npm 11 (ships with Node 24)
-- Optional: Docker for a local PostgreSQL
+- Optional: a PostgreSQL 18 server (otherwise the embedded PGlite is used)
 
 ## Setup
 
@@ -21,11 +21,10 @@ cp .env.example .env    # set VAULT_MASTER_KEY (≥ 32 chars) and POSTGRES_PASSW
 DATABASE_URL=pglite:./data/dev npm run dev
 ```
 
-**Real PostgreSQL:**
+**Real PostgreSQL:** point `DATABASE_URL` at any PostgreSQL 18 database; migrations run on start.
 
 ```bash
-docker compose -f docker-compose.dev.yml up -d
-DATABASE_URL=postgres://tresor:tresor@localhost:5432/tresor npm run dev
+DATABASE_URL=postgres://tresor:<password>@localhost:5432/tresor npm run dev
 ```
 
 `npm run dev` starts the API on <http://localhost:8080> (tsx watch) and Vite on <http://localhost:5173> with

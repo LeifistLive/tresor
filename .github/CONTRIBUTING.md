@@ -2,7 +2,7 @@
 
 Thanks for helping to improve Tresor!
 
-1. Read [docs/development.md](docs/development.md) to set up the project (Node.js ≥ 24.7).
+1. Read [docs/development.md](../docs/development.md) to set up the project (Node.js ≥ 24.7).
 2. Create a branch: `feat/short-description` or `fix/short-description`.
 3. Keep changes focused. Run before pushing:
    ```bash
@@ -18,4 +18,4 @@ Thanks for helping to improve Tresor!
 7. Changes to `apps/server/src/db/schema.ts` need a migration: `npm run db:generate`.
 
 Security-relevant changes (crypto, auth, sessions) should explain their reasoning in the pull request and keep
-[docs/security.md](docs/security.md) up to date.
+[docs/security.md](../docs/security.md) up to date.

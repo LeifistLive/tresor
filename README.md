@@ -6,7 +6,7 @@
 
 **Self-hosted, encrypted vault for notes, Matter codes, logins and other secrets.**
 
-[Deutsch](README.de.md) · [Docs](docs/) · [Changelog](CHANGELOG.md) · [Security](SECURITY.md)
+[Deutsch](README.de.md) · [Docs](docs/) · [Changelog](CHANGELOG.md) · [Security](.github/SECURITY.md)
 
 [![CI](https://github.com/leifistlive/tresor/actions/workflows/ci.yml/badge.svg)](https://github.com/leifistlive/tresor/actions/workflows/ci.yml)
 ![Version](https://img.shields.io/badge/version-1.0.0-c5f04a?style=flat-square)

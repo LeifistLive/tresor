@@ -6,7 +6,7 @@ body:
     attributes:
       value: |
         Please never paste secrets, recovery keys, VAULT_MASTER_KEY or database dumps into an issue.
-        Security problems: see SECURITY.md instead.
+        Security problems: please report them privately via the Security tab instead (see .github/SECURITY.md).
   - type: textarea
     id: what
     attributes:
