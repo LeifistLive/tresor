@@ -6,6 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-10-23
+
+### Changed
+
+- `.env.example` contains only what has to be filled in (secrets, host name) plus the presets for the bundled
+  HTTPS, now including `TRESOR_BIND=127.0.0.1`; every other setting keeps its default (`docs/configuration.md`).
+  `docker-compose.yml` is reduced to the configuration itself.
+
 ## [1.1.0] - 2026-10-23
 
 ### Changed

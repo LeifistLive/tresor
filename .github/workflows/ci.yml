@@ -63,10 +63,8 @@ jobs:
           sed -i \
             -e "s|^POSTGRES_PASSWORD=$|POSTGRES_PASSWORD=$(openssl rand -hex 32)|" \
             -e "s|^VAULT_MASTER_KEY=$|VAULT_MASTER_KEY=$(openssl rand -hex 32)|" \
-            -e "s|^# TRESOR_HOSTNAME=.*|TRESOR_HOSTNAME=localhost|" \
-            -e "s|^TRUST_PROXY=false|TRUST_PROXY=true|" \
-            -e "s|^TRESOR_PORT=8080|TRESOR_PORT=18080|" .env
-          echo "TRESOR_IMAGE=tresor:ci" >> .env
+            -e "s|^TRESOR_HOSTNAME=$|TRESOR_HOSTNAME=localhost|" .env
+          printf 'TRESOR_IMAGE=tresor:ci\nTRESOR_PORT=18080\n' >> .env
           docker compose up -d --wait --wait-timeout 120
           for i in $(seq 1 30); do curl -fsSk https://localhost:8443/api/health && break; sleep 2; done
           curl -fsSk https://localhost:8443/api/setup/status | grep -q '"needsSetup":true'

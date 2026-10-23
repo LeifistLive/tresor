@@ -38,7 +38,7 @@ mkdir -p rclone
 docker run --rm -it -v "$PWD/rclone:/config/rclone" rclone/rclone:1 config
 ```
 
-Then set the target in `.env` (remove the `#`), e.g. `RCLONE_REMOTE=b2crypt:tresor`, add `offsite` to the profiles
+Then add the target to `.env`, e.g. `RCLONE_REMOTE=b2crypt:tresor`, add `offsite` to the profiles
 (e.g. `COMPOSE_PROFILES=https,backup,offsite`) and run
 
 ```bash

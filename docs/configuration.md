@@ -1,7 +1,7 @@
 # Configuration
 
-Tresor is configured with environment variables. With Docker Compose put them into `.env` (see
-[`.env.example`](../.env.example)); the compose file passes the relevant ones to the containers.
+Tresor is configured with environment variables. With Docker Compose put them into `.env`; only the settings in
+[`.env.example`](../.env.example) are needed, everything below is optional.
 
 ## Application (`app` container)
 
@@ -36,7 +36,7 @@ Tresor is configured with environment variables. With Docker Compose put them in
 | `POSTGRES_PASSWORD` | – (required) | Password of the internal database user. |
 | `COMPOSE_PROFILES` | `https` (in `.env.example`) | Optional services, comma-separated: `https` (bundled Caddy), `backup` (nightly dumps), `offsite` (rclone copies, with `backup`). Read by Docker Compose itself. |
 | `TRESOR_PORT` | `8080` | Published host port. |
-| `TRESOR_BIND` | `0.0.0.0` | Host address the port is bound to (`127.0.0.1` behind a local proxy). |
+| `TRESOR_BIND` | `0.0.0.0` (`.env.example`: `127.0.0.1`) | Host address of the plain HTTP port; `127.0.0.1` keeps it on the server (bundled HTTPS or a proxy on the same host). |
 | `TRESOR_HOSTNAME` | – | `https` profile: IP or host name the browsers use (host name needed for passkeys). |
 | `TRESOR_HTTPS_PORT` / `TRESOR_HTTPS_BIND` | `8443` / `0.0.0.0` | `https` profile: published HTTPS port and bind address. |
 | `TRESOR_IMAGE` | `ghcr.io/leifistlive/tresor:1` | Image to run. `1` follows every 1.x release; pin e.g. `ghcr.io/leifistlive/tresor:1.1.0`, or use a self-built image. |

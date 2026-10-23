@@ -48,7 +48,7 @@ mkdir tresor && cd tresor
 curl -LO https://github.com/leifistlive/tresor/releases/latest/download/docker-compose.yml
 curl -L -o .env https://github.com/leifistlive/tresor/releases/latest/download/env.example
 openssl rand -hex 32                   # run twice: one value each for POSTGRES_PASSWORD and VAULT_MASTER_KEY
-nano .env                              # fill in the two secrets, TRESOR_HOSTNAME and TRUST_PROXY=true
+nano .env                              # fill in the two secrets and TRESOR_HOSTNAME
 docker compose up -d                   # pulls the image, starts Tresor + PostgreSQL + local HTTPS
 ```
 

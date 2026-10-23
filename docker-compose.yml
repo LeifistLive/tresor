@@ -1,20 +1,8 @@
-# Tresor – production stack. Only this file and .env are needed on the server.
-#   1. save env.example as .env next to this file and fill it in  (secrets: openssl rand -hex 32)
-#   2. docker compose up -d                 (pulls the published image)
-#   3. open the app and create the admin account
-# Update: docker compose pull && docker compose up -d
-#
-# Optional services are switched on with COMPOSE_PROFILES in .env (comma-separated):
-#   https     bundled HTTPS via Caddy → https://<TRESOR_HOSTNAME>:8443 (Tresor encrypts in the browser, which
-#             needs HTTPS or localhost) – remove it when Tresor runs behind your own reverse proxy
-#   backup    nightly database dumps
-#   offsite   copies of the dumps via rclone (together with backup)
-
+# Tresor – settings in .env, start: docker compose up -d, update: docker compose pull && docker compose up -d
 name: tresor
 
 services:
   app:
-    # Published image; `1` follows every 1.x release. Pin a version with TRESOR_IMAGE in .env.
     image: ${TRESOR_IMAGE:-ghcr.io/leifistlive/tresor:1}
     restart: unless-stopped
     init: true
@@ -23,7 +11,7 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgres://tresor:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/tresor
-      VAULT_MASTER_KEY: ${VAULT_MASTER_KEY:?Set VAULT_MASTER_KEY in .env (see docs/installation.md)}
+      VAULT_MASTER_KEY: ${VAULT_MASTER_KEY:?Set VAULT_MASTER_KEY in .env}
       COOKIE_SECURE: ${COOKIE_SECURE:-auto}
       TRUST_PROXY: ${TRUST_PROXY:-false}
       SESSION_TTL_HOURS: ${SESSION_TTL_HOURS:-12}
@@ -61,7 +49,6 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
       POSTGRES_DB: tresor
     volumes:
-      # PostgreSQL 18 images keep their data below /var/lib/postgresql/18/docker
       - ${TRESOR_DB_PATH:-db-data}:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U tresor -d tresor"]
@@ -74,7 +61,6 @@ services:
     networks:
       - backend
 
-  # Nightly pg_dump into ./backups (encrypted notes stay encrypted inside the dump).
   backup:
     image: postgres:18-alpine
     profiles: ["backup"]
@@ -105,9 +91,6 @@ services:
     networks:
       - backend
 
-  # HTTPS in front of the app with certificates from Caddy's own local CA (no internet access needed).
-  #   profile `https` – set TRESOR_HOSTNAME (IP or name of the server) in .env
-  #   trust the CA once per device: docker compose cp https:/data/caddy/pki/authorities/local/root.crt ./tresor-root.crt
   https:
     image: caddy:2-alpine
     profiles: ["https"]
@@ -140,9 +123,6 @@ services:
     networks:
       - frontend
 
-  # Copies the dumps to any rclone remote (S3, Backblaze B2, NAS via SFTP/SMB, WebDAV …).
-  # Use an rclone "crypt" remote so the files are encrypted before they leave the house.
-  #   profiles `backup` + `offsite`, e.g. COMPOSE_PROFILES=https,backup,offsite
   offsite:
     image: rclone/rclone:1
     profiles: ["offsite"]

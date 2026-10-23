@@ -28,11 +28,10 @@ Open `.env` in an editor (e.g. `nano .env`) and fill in:
 |---|---|
 | `POSTGRES_PASSWORD` | the first random value |
 | `VAULT_MASTER_KEY` | the second random value – **keep a copy in a safe place** |
-| `TRESOR_HOSTNAME` | IP or host name your devices use for the server, e.g. `192.168.178.20` (remove the `#`) |
-| `TRUST_PROXY` | `true` |
+| `TRESOR_HOSTNAME` | IP or host name your devices use for the server, e.g. `192.168.178.20` |
 
-`COMPOSE_PROFILES=https` is already set and starts the bundled HTTPS (Caddy). With your own reverse proxy, leave it
-empty – see [HTTPS](#https).
+The other three lines are preset for the bundled HTTPS (Caddy). With your own reverse proxy see [HTTPS](#https);
+all further settings are optional ([configuration.md](configuration.md)).
 
 Then start Tresor:
 
@@ -66,11 +65,11 @@ from another device, Tresor shows a page explaining this instead of starting.
 ### Bundled: `https` profile (Caddy with a local CA)
 
 ```dotenv
-COMPOSE_PROFILES=https           # starts the bundled Caddy (preset in .env.example)
+COMPOSE_PROFILES=https           # starts the bundled Caddy
 TRESOR_HOSTNAME=192.168.178.20   # IP or host name the browsers use
-TRESOR_HTTPS_PORT=8443           # optional
 TRUST_PROXY=true                 # real client IPs + Secure cookies
-TRESOR_BIND=127.0.0.1            # optional: hide the plain HTTP port from the network
+TRESOR_BIND=127.0.0.1            # plain HTTP only on the server itself
+TRESOR_HTTPS_PORT=8443           # optional, the default
 ```
 
 ```bash
@@ -100,7 +99,7 @@ COMPOSE_PROFILES=         # no bundled Caddy (add backup/offsite here if you use
 TRUST_PROXY=true          # or the proxy's IP / CIDR, e.g. 172.18.0.0/16
 COOKIE_SECURE=auto        # cookies become Secure automatically for HTTPS requests
 ENABLE_HSTS=true          # once everything works via HTTPS
-TRESOR_BIND=127.0.0.1     # optional: only reachable through the proxy on the same host
+TRESOR_BIND=0.0.0.0       # only if the proxy does not run on the same host
 ```
 
 **Caddy**
