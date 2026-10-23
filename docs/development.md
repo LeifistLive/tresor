@@ -39,7 +39,6 @@ a proxy for `/api`. For plain-HTTP development set `COOKIE_SECURE=false` (the de
 | `npm run dev` | API + web app in watch mode |
 | `npm run build` | Production build (`apps/web/dist`, `apps/server/dist`) |
 | `npm start` | Run the built server (serves the built web app) |
-| `npm run demo` | Local demo on http://localhost:8080 with sample data (PGlite in `data/demo`, `-- --reset` to start over) |
 | `npm test` | Vitest: crypto unit tests + API integration tests on PGlite |
 | `npm run typecheck` | `tsc --noEmit` in all workspaces |
 | `npm run check` / `npm run format` | Biome lint & format check / auto-fix |
