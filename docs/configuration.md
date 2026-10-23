@@ -12,7 +12,7 @@ optional.
 | `TRUST_PROXY` | `false` | `true` behind the bundled Caddy or another reverse proxy |
 | `TRESOR_BIND` / `TRESOR_PORT` | `0.0.0.0` / `8080` | Address and port for plain HTTP |
 | `TRESOR_HTTPS_BIND` / `TRESOR_HTTPS_PORT` | `0.0.0.0` / `8443` | Address and port of the bundled HTTPS |
-| `TRESOR_IMAGE` | `ghcr.io/leifistlive/tresor:1` | Image to run; pin a version with e.g. `…:1.1.1` |
+| `TRESOR_IMAGE` | `ghcr.io/leifistlive/tresor:1` | Image to run; use an exact release version to stay on it |
 | `TRESOR_DB_PATH` | Docker volume | Host folder for the database (e.g. Unraid appdata) |
 | `TRESOR_BACKUP_PATH` | `./backups` | Folder for database dumps |
 | `BACKUP_INTERVAL_HOURS` / `BACKUP_KEEP_DAYS` | `24` / `14` | Dump interval and retention |
