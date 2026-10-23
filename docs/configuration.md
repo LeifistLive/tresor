@@ -39,7 +39,7 @@ Tresor is configured with environment variables. With Docker Compose put them in
 | `TRESOR_BIND` | `0.0.0.0` (`.env.example`: `127.0.0.1`) | Host address of the plain HTTP port; `127.0.0.1` keeps it on the server (bundled HTTPS or a proxy on the same host). |
 | `TRESOR_HOSTNAME` | – | `https` profile: IP or host name the browsers use (host name needed for passkeys). |
 | `TRESOR_HTTPS_PORT` / `TRESOR_HTTPS_BIND` | `8443` / `0.0.0.0` | `https` profile: published HTTPS port and bind address. |
-| `TRESOR_IMAGE` | `ghcr.io/leifistlive/tresor:1` | Image to run. `1` follows every 1.x release; pin e.g. `ghcr.io/leifistlive/tresor:1.1.0`, or use a self-built image. |
+| `TRESOR_IMAGE` | `ghcr.io/leifistlive/tresor:1` | Image to run. `1` follows every 1.x release; pin e.g. `ghcr.io/leifistlive/tresor:1.1.1`, or use a self-built image. |
 | `TRESOR_DB_PATH` | named volume `db-data` | Host path for PostgreSQL data (e.g. on Unraid appdata). |
 | `TRESOR_BACKUP_PATH` | `./backups` | Target of the `backup` profile. |
 | `BACKUP_INTERVAL_HOURS` | `24` | Dump interval of the `backup` profile. |

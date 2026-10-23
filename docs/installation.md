@@ -51,7 +51,7 @@ By default `docker-compose.yml` runs `ghcr.io/leifistlive/tresor:1`, which follo
 [Updating](#updating)). To stay on a fixed version, set it in `.env`:
 
 ```dotenv
-TRESOR_IMAGE=ghcr.io/leifistlive/tresor:1.1.0
+TRESOR_IMAGE=ghcr.io/leifistlive/tresor:1.1.1
 ```
 
 A self-built image works the same way – see [development.md](development.md#docker-image).
