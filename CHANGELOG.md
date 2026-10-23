@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-10-23
+
+### Changed
+
+- Updated dependencies, including React Router 8, React 19.3.1, Radix UI 1.8, i18next 26, the Fastify plugins,
+  Drizzle ORM and Zod, plus the GitHub Actions used for CI and releases.
+
 ## [1.1.1] - 2026-10-23
 
 ### Changed
