@@ -23,8 +23,8 @@
     "db:generate": "npm run db:generate -w @tresor/server"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.15",
-    "concurrently": "^10.0.5",
+    "@biomejs/biome": "^2.6.6",
+    "concurrently": "^10.0.7",
     "typescript": "^7.0.2"
   }
 }
